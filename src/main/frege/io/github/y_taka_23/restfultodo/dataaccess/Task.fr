@@ -1,0 +1,103 @@
+module io.github.y_taka_23.restfultodo.dataaccess.Task where
+
+import sirocco.JDBC    ( Connection )
+import sirocco.FDBC    ( SqlLong, SqlInteger, SqlString, SqlBool )
+import sirocco.Sirocco ( execute, query, update, toParam, mapRowsTo )
+
+import io.github.y_taka_23.restfultodo.value.Task as V
+    ( Task, NumberedTask )
+
+
+createTable :: IO Connection -> IO Bool
+createTable conn = execute conn (Just sql)
+    where sql = "CREATE TABLE IF NOT EXISTS tasks ( " ++
+                "    id        INTEGER NOT NULL PRIMARY KEY, " ++
+                "    title     TEXT    NOT NULL, " ++
+                "    completed BOOLEAN NOT NULL, " ++
+                ");"
+
+createIdSequence :: IO Connection -> IO Bool
+createIdSequence conn = execute conn (Just sql)
+    where sql = "CREATE SEQUENCE IF NOT EXISTS task_id " ++
+                "    START WITH   1 " ++
+                "    INCREMENT BY 1 " ++
+                ";"
+
+findAll :: IO Connection -> IO [V.NumberedTask]
+findAll conn =
+    mapToNumberedTasks $ query conn (Just sql) []
+        where sql = "SELECT   id, title, completed " ++
+                    "FROM     tasks " ++
+                    "ORDER BY id;"
+
+findAllByCompleted :: IO Connection -> Bool -> IO [V.NumberedTask]
+findAllByCompleted conn status =
+    mapToNumberedTasks $ query conn (Just sql) params
+        where sql    = "SELECT   id, title, completed " ++
+                       "FROM     tasks " ++
+                       "WHERE    completed = ? " ++
+                       "ORDER BY id;"
+              params = toParam <$> [Just status]
+
+findById :: IO Connection -> Long -> IO (Maybe V.NumberedTask)
+findById conn id =
+    getFirst $ mapToNumberedTasks $ query conn (Just sql) params
+        where sql    = "SELECT   id, title, completed " ++
+                       "FROM     tasks " ++
+                       "WHERE    id = ? " ++
+                       "ORDER BY id;"
+              params = toParam <$> [Just id]
+
+private mapToNumberedTasks = mapRowsTo toNumberedTask
+    where toNumberedTask ((SqlLong i) : (SqlString t) : (SqlBool c) : []) =
+              let task = V.Task { title = t, completed = c }
+              in  V.NumberedTask { id = i, task = task }
+          toNumberedTask x = error $ "cannot parse from: " ++ show x
+
+private getFirst :: IO [a] -> IO (Maybe a)
+private getFirst contents = do
+    xs <- contents
+    case xs of
+        []      -> return Nothing
+        (x : _) -> return (Just x)
+
+add :: IO Connection -> V.Task -> IO V.NumberedTask
+add conn task = do
+    Just id <- fetchNextTaskId conn
+    let sql    = "INSERT INTO tasks ( id, title, completed ) " ++
+                 "VALUES ( ?, ?, ? );"
+        params = [ toParam (Just id)
+                 , toParam (Just task.title)
+                 , toParam (Just task.completed)
+                 ]
+    _ <- update conn (Just sql) params
+    return V.NumberedTask { id = id, task = task }
+
+private fetchNextTaskId :: IO Connection -> IO (Maybe Long)
+private fetchNextTaskId conn =
+    getFirst $ mapToTaskIds $ query conn (Just sql) []
+        where sql          = "SELECT task_id.NEXTVAL FROM dual;"
+              mapToTaskIds = mapRowsTo toTaskId
+              toTaskId ((SqlInteger i) : []) = fromIntegral i
+              toTaskId _ = error $ "cannot fetch the next task id."
+
+modify :: IO Connection -> Long -> V.Task -> IO (Maybe V.NumberedTask)
+modify conn id task = do
+    let sql    = "UPDATE tasks " ++
+                 "SET    title = ?, completed = ? " ++
+                 "WHERE  id = ?;"
+        params = [ toParam (Just task.title)
+                 , toParam (Just task.completed)
+                 , toParam (Just id)
+                 ]
+    updated <- update conn (Just sql) params
+    if updated > 0
+        then return $ Just V.NumberedTask { id = id, task = task }
+        else return Nothing
+
+deleteById :: IO Connection -> Long -> IO Int
+deleteById conn id = update conn (Just sql) params
+    where sql    = "DELETE FROM tasks " ++
+                   "WHERE       id = ?;"
+          params = toParam <$> [Just id]
+

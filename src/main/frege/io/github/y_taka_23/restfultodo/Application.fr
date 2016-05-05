@@ -1,0 +1,41 @@
+module io.github.y_taka_23.restfultodo.Application where
+
+import chinook.Chinook ( run )
+import chinook.Router  ( Resource, + )
+import frege.Prelude                   hiding ( + )
+
+import io.github.y_taka_23.restfultodo.handler.Error
+    ( notFoundHandler, methodNotAllowedHandler )
+import io.github.y_taka_23.restfultodo.handler.Task
+    ( readListHandler, createHandler
+    , readHandler, updateHandler, deleteHandler )
+import io.github.y_taka_23.restfultodo.migration.Initializer ( initialize )
+
+
+main :: [String] -> IO ()
+main _ = do
+    _ <- initialize
+    Chinook.run [] routes
+
+private routes :: [Resource]
+private routes =
+    [ Patch   "*" notFoundHandler
+    , Options "*" notFoundHandler
+    , Trace   "*" notFoundHandler
+    , Head    "*" notFoundHandler
+    , "/api/v1/tasks" +
+        [ Get    "" readListHandler
+        , Post   "" createHandler
+        , Put    "" methodNotAllowedHandler
+        , Delete "" methodNotAllowedHandler
+        , Get    "/:id" readHandler
+        , Post   "/:id" methodNotAllowedHandler
+        , Put    "/:id" updateHandler
+        , Delete "/:id" deleteHandler
+        ]
+    , Get    "*" notFoundHandler
+    , Post   "*" notFoundHandler
+    , Put    "*" notFoundHandler
+    , Delete "*" notFoundHandler
+    ]
+

@@ -1,0 +1,14 @@
+module io.github.y_taka_23.restfultodo.dataaccess.Connection where
+
+import sirocco.JDBC    ( Connection )
+import sirocco.Sirocco ( createConnection )
+
+
+-- With in-memory mode of H2, you need to keep connection open.
+private dbUrl      = "jdbc:h2:mem:restfultodo"
+private dbUser     = "sa"
+private dbPassword = ""
+
+connection :: IO Connection
+connection = createConnection dbUrl dbUser dbPassword
+

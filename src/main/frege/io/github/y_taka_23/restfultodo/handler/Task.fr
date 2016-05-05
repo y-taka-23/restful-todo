@@ -1,0 +1,133 @@
+module io.github.y_taka_23.restfultodo.handler.Task where
+
+import chinook.Core                   ( Handler, Response, response )
+import chinook.util.ContentType as CT ( json )
+import frege.data.JSON                ( parseJSON, toJSON )
+import frege.prelude.PreludeBase      ( StringJ )
+
+import io.github.y_taka_23.restfultodo.dataaccess.Connection ( connection )
+import io.github.y_taka_23.restfultodo.dataaccess.Task as DA
+    ( findAll, findAllByCompleted, findById, deleteById )
+import io.github.y_taka_23.restfultodo.value.Task as V
+    ( NumberedTask )
+import io.github.y_taka_23.restfultodo.value.Error ( badRequest, notFound )
+
+
+readListHandler :: Handler
+readListHandler req = do
+    mCompleted <- req.param "completed"
+    case mCompleted of
+        Nothing -> do
+            tasks <- DA.findAll connection
+            return $ taskListResponse tasks
+        Just "true" -> do
+            tasks <- DA.findAllByCompleted connection true
+            return $ taskListResponse tasks
+        Just "false" -> do
+            tasks <- DA.findAllByCompleted connection false
+            return $ taskListResponse tasks
+        Just x -> do
+            return $ badRequestResponse $ "invalid query: completed=" ++ x
+
+readHandler :: Handler
+readHandler req = do
+    Just idStr <- req.path ":id"
+    case StringJ.long idStr of
+        Right id -> do
+            mTask <- DA.findById connection id
+            case mTask of
+                Just task -> return $ taskResponse task
+                Nothing   -> return $ notFoundResponse
+        Left _ -> do
+            return $ badRequestResponse $ "invalid parameter: " ++ idStr
+
+createHandler :: Handler
+createHandler req = do
+    mBody <- req.body
+    case mBody of
+        Just body -> do
+            case (parseJSON body :: Either String V.Task) of
+                Right task -> do
+                    nTask <- DA.add connection task
+                    return $ createdResponse nTask
+                Left msg -> do
+                    return $ badRequestResponse msg
+        Nothing -> do
+            return $ badRequestResponse "empty body."
+
+updateHandler :: Handler
+updateHandler req = do
+    mBody <- req.body
+    case mBody of
+        Just body -> do
+            case (parseJSON body :: Either String V.Task) of
+                Right task -> do
+                    Just idStr <- req.path ":id"
+                    case StringJ.long idStr of
+                        Right id -> do
+                            mNTask <- DA.modify connection id task
+                            case mNTask of
+                                Just ntask -> do
+                                    return $ taskResponse ntask
+                                Nothing -> do
+                                    return $ notFoundResponse
+                        Left _ -> do
+                            return $ badRequestResponse $
+                                "invalid parameter: " ++ idStr
+                Left msg -> do
+                    return $ badRequestResponse msg
+        Nothing -> do
+            return $ badRequestResponse "empty body."
+
+deleteHandler :: Handler
+deleteHandler req = do
+    Just idStr <- req.path ":id"
+    case StringJ.long idStr of
+        Right id -> do
+            _ <- DA.deleteById connection id
+            return $ deletedResponse
+        Left _ -> do
+            return $ badRequestResponse $ "invalid parameter: " ++ idStr
+
+private taskListResponse :: [V.NumberedTask] -> Response
+private taskListResponse tasks =
+    response.{ status  = 200
+             , headers = [CT.json]
+             , output  = Just $ show $ toJSON tasks
+             }
+
+private taskResponse :: V.NumberedTask -> Response
+private taskResponse task =
+    response.{ status  = 200
+             , headers = [CT.json]
+             , output  = Just $ show $ toJSON task
+             }
+
+private createdResponse :: V.NumberedTask -> Response
+private createdResponse task =
+    response.{ status  = 201
+             , headers = [CT.json]
+             , output  = Just $ show $ toJSON task
+             }
+
+private deletedResponse :: Response
+private deletedResponse =
+    response.{ status  = 204
+             , headers = [CT.json]
+             }
+
+private badRequestResponse :: String -> Response
+private badRequestResponse msg =
+    let res = badRequest msg
+    in  response.{ status  = res.status
+                 , headers = [CT.json]
+                 , output  = Just $ show $ toJSON res
+                 }
+
+private notFoundResponse :: Response
+private notFoundResponse =
+    response.{ status  = notFound.status
+             , headers = [CT.json]
+             , output  = Just $ show $ toJSON notFound
+             }
+

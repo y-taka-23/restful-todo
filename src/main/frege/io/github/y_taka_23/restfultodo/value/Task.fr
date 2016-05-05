@@ -1,0 +1,35 @@
+module io.github.y_taka_23.restfultodo.value.Task where
+
+import frege.data.JSON ( ToJSON, FromJSON, Struct, assoc, field )
+
+
+data Task = Task { title :: String, completed :: Bool }
+
+instance ToJSON Task where
+    toJSON Task{title, completed} =
+        Struct [ assoc "title"     title
+               , assoc "completed" completed
+               ]
+
+instance FromJSON Task where
+    fromJSON (Struct as) = do
+        t <- field "title"     as
+        c <- field "completed" as
+        return Task { title = t, completed = c }
+    fromJSON x = fail $ "cannot deserialize from: " ++ show x
+
+data NumberedTask = NumberedTask { id :: Long, task :: Task }
+
+instance ToJSON NumberedTask where
+    toJSON NumberedTask{id, task} =
+        Struct [ assoc "id"   id
+               , assoc "task" task
+               ]
+
+instance FromJSON NumberedTask where
+    fromJSON (Struct as) = do
+        i <- field "id"   as
+        t <- field "task" as
+        return NumberedTask { id = i, task = t }
+    fromJSON x = fail $ "cannot deserialize from: " ++ show x
+

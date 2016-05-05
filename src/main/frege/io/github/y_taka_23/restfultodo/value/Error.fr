@@ -1,0 +1,25 @@
+module io.github.y_taka_23.restfultodo.value.Error where
+
+import frege.data.JSON ( ToJSON, Struct, assoc )
+
+
+data ClientError = ClientError { status :: Int, message :: String }
+
+badRequest :: String -> ClientError
+badRequest msg =
+    ClientError { status = 400, message = msg }
+
+notFound :: ClientError
+notFound =
+    ClientError { status = 404, message = "resource not found." }
+
+methodNotAllowed :: ClientError
+methodNotAllowed =
+    ClientError { status = 405, message = "unsupported HTTP method." }
+
+instance ToJSON ClientError where
+    toJSON ClientError{status, message} =
+        Struct [ assoc "status"  status
+               , assoc "message" message
+               ]
+

@@ -1,0 +1,13 @@
+module io.github.y_taka_23.restfultodo.migration.Initializer where
+
+import io.github.y_taka_23.restfultodo.dataaccess.Connection ( connection )
+import io.github.y_taka_23.restfultodo.dataaccess.Task
+    ( createTable, createIdSequence )
+
+
+initialize :: IO Bool
+initialize = do
+    tableOk <- createTable connection
+    seqOk   <- createIdSequence connection
+    return $ tableOk && seqOk
+

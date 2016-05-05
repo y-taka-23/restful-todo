@@ -1,0 +1,25 @@
+module io.github.y_taka_23.restfultodo.handler.Error where
+
+import chinook.Core                   ( Handler, Response, response )
+import chinook.util.ContentType as CT ( json )
+import frege.data.JSON                ( toJSON )
+
+import io.github.y_taka_23.restfultodo.value.Error as V
+    ( ClientError, notFound, methodNotAllowed )
+
+
+notFoundHandler :: Handler
+notFoundHandler _ = do
+    return $ errorResponse V.notFound
+
+methodNotAllowedHandler :: Handler
+methodNotAllowedHandler _ = do
+    return $ errorResponse V.methodNotAllowed
+
+private errorResponse :: V.ClientError -> Response
+private errorResponse err =
+    response.{ status  = err.status
+             , headers = [CT.json]
+             , output  = Just $ show $ toJSON err
+             }
+
