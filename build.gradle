@@ -5,6 +5,9 @@ plugins {
 apply plugin: "org.frege-lang"
 apply plugin: "application"
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 mainClassName = "io.github.y_taka_23.restfultodo.Application"
 
 repositories {
