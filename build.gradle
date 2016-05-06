@@ -16,6 +16,6 @@ dependencies {
     compile "org.frege-lang:frege:3.23.288-gaa3af0c"
     compile "com.github.januslynd:chinook-core:0.2.0"
     compile "com.github.januslynd:sirocco-core:0.1.1"
-    compile "com.h2database:h2:1.4.188"
+    runtime "com.h2database:h2:1.4.188"
 }
 
