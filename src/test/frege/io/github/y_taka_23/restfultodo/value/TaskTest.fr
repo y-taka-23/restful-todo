@@ -1,0 +1,42 @@
+module io.github.y_taka_23.restfultodo.value.TaskTest where
+
+import frege.data.JSON       ( toJSON, fromJSON )
+import frege.test.QuickCheck ( Arbitrary, Property, property, once, label )
+
+import io.github.y_taka_23.restfultodo.value.Task ( Task, NumberedTask )
+
+
+derive Eq   Task
+derive Show Task
+
+instance Arbitrary Task where
+    arbitrary = Task <$> arbitrary <*> arbitrary
+
+derive Eq   NumberedTask
+derive Show NumberedTask
+
+instance Arbitrary NumberedTask where
+    arbitrary = NumberedTask <$> arbitrary <*> arbitrary
+
+prop_task_isom :: Property
+prop_task_isom =
+    label "'fromJSON . toJSON' preserves the original Task"
+        (property taskIsomorphic)
+
+prop_numberd_task_isom :: Property
+prop_numberd_task_isom =
+    label "'fromJSON . toJSON' preserves the original NumberdTask"
+        (property numberedTaskIsomorphic)
+
+private taskIsomorphic :: Task -> Bool
+private taskIsomorphic task = toTask result == task
+    where result = fromJSON (toJSON task) :: Either String Task
+          toTask (Right t) = t
+          toTask (Left  x) = error $ "cannot parse from: " ++ show x
+
+private numberedTaskIsomorphic :: NumberedTask -> Bool
+private numberedTaskIsomorphic task = toTask result == task
+    where result = fromJSON (toJSON task) :: Either String NumberedTask
+          toTask (Right t) = t
+          toTask (Left  x) = error $ "cannot parse from: " ++ show x
+
