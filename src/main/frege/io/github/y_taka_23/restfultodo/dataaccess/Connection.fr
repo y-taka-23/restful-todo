@@ -1,4 +1,4 @@
-module io.github.y_taka_23.restfultodo.dataaccess.Connection where
+module io.cheshirecat.restfultodo.dataaccess.Connection where
 
 import sirocco.JDBC    ( Connection )
 import sirocco.Sirocco ( createConnection )

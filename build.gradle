@@ -8,7 +8,7 @@ apply plugin: "application"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-mainClassName = "io.github.y_taka_23.restfultodo.Application"
+mainClassName = "io.cheshirecat.restfultodo.Application"
 
 repositories {
     jcenter()

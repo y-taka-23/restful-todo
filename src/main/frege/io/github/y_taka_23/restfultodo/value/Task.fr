@@ -1,4 +1,4 @@
-module io.github.y_taka_23.restfultodo.value.Task where
+module io.cheshirecat.restfultodo.value.Task where
 
 import frege.data.JSON ( ToJSON, FromJSON, Struct, assoc, field )
 

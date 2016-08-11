@@ -1,10 +1,10 @@
-module io.github.y_taka_23.restfultodo.dataaccess.Task where
+module io.cheshirecat.restfultodo.dataaccess.Task where
 
 import sirocco.JDBC    ( Connection )
 import sirocco.FDBC    ( SqlLong, SqlInteger, SqlString, SqlBool )
 import sirocco.Sirocco ( execute, query, update, toParam, mapRowsTo )
 
-import io.github.y_taka_23.restfultodo.value.Task as V
+import io.cheshirecat.restfultodo.value.Task as V
     ( Task, NumberedTask )
 
 

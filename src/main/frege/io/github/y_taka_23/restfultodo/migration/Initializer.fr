@@ -1,7 +1,7 @@
-module io.github.y_taka_23.restfultodo.migration.Initializer where
+module io.cheshirecat.restfultodo.migration.Initializer where
 
-import io.github.y_taka_23.restfultodo.dataaccess.Connection ( connection )
-import io.github.y_taka_23.restfultodo.dataaccess.Task
+import io.cheshirecat.restfultodo.dataaccess.Connection ( connection )
+import io.cheshirecat.restfultodo.dataaccess.Task
     ( createTable, createIdSequence )
 
 

@@ -1,10 +1,10 @@
-module io.github.y_taka_23.restfultodo.handler.Error where
+module io.cheshirecat.restfultodo.handler.Error where
 
 import chinook.Core                   ( Handler, Response, response )
 import chinook.util.ContentType as CT ( json )
 import frege.data.JSON                ( toJSON )
 
-import io.github.y_taka_23.restfultodo.value.Error as V
+import io.cheshirecat.restfultodo.value.Error as V
     ( ClientError, notFound, methodNotAllowed )
 
 

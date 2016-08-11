@@ -1,4 +1,4 @@
-module io.github.y_taka_23.restfultodo.value.Error where
+module io.cheshirecat.restfultodo.value.Error where
 
 import frege.data.JSON ( ToJSON, Struct, assoc )
 

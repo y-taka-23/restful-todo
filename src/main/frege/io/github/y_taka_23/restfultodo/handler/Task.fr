@@ -1,16 +1,16 @@
-module io.github.y_taka_23.restfultodo.handler.Task where
+module io.cheshirecat.restfultodo.handler.Task where
 
 import chinook.Core                   ( Handler, Response, response )
 import chinook.util.ContentType as CT ( json )
 import frege.data.JSON                ( parseJSON, toJSON )
 import frege.prelude.PreludeBase      ( StringJ )
 
-import io.github.y_taka_23.restfultodo.dataaccess.Connection ( connection )
-import io.github.y_taka_23.restfultodo.dataaccess.Task as DA
+import io.cheshirecat.restfultodo.dataaccess.Connection ( connection )
+import io.cheshirecat.restfultodo.dataaccess.Task as DA
     ( findAll, findAllByCompleted, findById, deleteById )
-import io.github.y_taka_23.restfultodo.value.Task as V
+import io.cheshirecat.restfultodo.value.Task as V
     ( NumberedTask )
-import io.github.y_taka_23.restfultodo.value.Error ( badRequest, notFound )
+import io.cheshirecat.restfultodo.value.Error ( badRequest, notFound )
 
 
 readListHandler :: Handler

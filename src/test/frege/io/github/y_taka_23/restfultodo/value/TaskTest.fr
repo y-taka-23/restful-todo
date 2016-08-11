@@ -1,9 +1,9 @@
-module io.github.y_taka_23.restfultodo.value.TaskTest where
+module io.cheshirecat.restfultodo.value.TaskTest where
 
 import frege.data.JSON       ( toJSON, fromJSON )
 import frege.test.QuickCheck ( Arbitrary, Property, property, once, label )
 
-import io.github.y_taka_23.restfultodo.value.Task ( Task, NumberedTask )
+import io.cheshirecat.restfultodo.value.Task ( Task, NumberedTask )
 
 
 derive Eq   Task

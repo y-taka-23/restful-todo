@@ -1,15 +1,15 @@
-module io.github.y_taka_23.restfultodo.Application where
+module io.cheshirecat.restfultodo.Application where
 
 import chinook.Chinook ( run )
 import chinook.Router  ( Resource, + )
 import frege.Prelude                   hiding ( + )
 
-import io.github.y_taka_23.restfultodo.handler.Error
+import io.cheshirecat.restfultodo.handler.Error
     ( notFoundHandler, methodNotAllowedHandler )
-import io.github.y_taka_23.restfultodo.handler.Task
+import io.cheshirecat.restfultodo.handler.Task
     ( readListHandler, createHandler
     , readHandler, updateHandler, deleteHandler )
-import io.github.y_taka_23.restfultodo.migration.Initializer ( initialize )
+import io.cheshirecat.restfultodo.migration.Initializer ( initialize )
 
 
 main :: [String] -> IO ()
